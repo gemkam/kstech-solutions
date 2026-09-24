@@ -702,8 +702,8 @@ function initObserver() {
 
 // ===== Lead tracking (?ref=) =====
 // Fill these two after creating the Supabase project. Leave empty to disable logging.
-const SUPABASE_URL = '';      // e.g. https://xxxx.supabase.co
-const SUPABASE_ANON_KEY = ''; // anon public key (safe in browser with insert-only RLS)
+const SUPABASE_URL = 'https://cenmztxrxkmkdbbiuhiz.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNlbm16dHhyeGtta2RiYml1aGl6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTAyMTA2MzcsImV4cCI6MjEwNTc4NjYzN30.FPALn0QDww15O61Jr7droKHd7nvc14iLEbLHONeJrho'; // anon key, insert-only via RLS
 
 const LEAD_REF = (function () {
   const r = new URLSearchParams(window.location.search).get('ref');
