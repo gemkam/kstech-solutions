@@ -711,9 +711,9 @@ const LEAD_REF = (function () {
 })();
 
 function logLeadEvent(eventType) {
-  if (!LEAD_REF || !SUPABASE_URL || !SUPABASE_ANON_KEY) return;
+  if (!LEAD_REF || !SUPABASE_URL || !SUPABASE_ANON_KEY) return Promise.resolve();
   try {
-    fetch(SUPABASE_URL + '/rest/v1/link_visits', {
+    return fetch(SUPABASE_URL + '/rest/v1/link_visits', {
       method: 'POST',
       keepalive: true,
       headers: {
@@ -730,7 +730,7 @@ function logLeadEvent(eventType) {
         user_agent: navigator.userAgent.slice(0, 250)
       })
     }).catch(function () {});
-  } catch (e) {}
+  } catch (e) { return Promise.resolve(); }
 }
 
 function tagWhatsAppLinks() {
@@ -748,9 +748,20 @@ function trackClicks() {
   document.addEventListener('click', function (e) {
     const a = e.target.closest('a');
     if (!a) return;
-    if (a.href.indexOf('https://wa.me/') === 0) logLeadEvent('whatsapp_click');
-    else if (a.href.indexOf('tel:') === 0) logLeadEvent('call_click');
-    else if (a.classList.contains('work-card')) logLeadEvent('project_click');
+    const isWa = a.href.indexOf('https://wa.me/') === 0;
+    const isTel = a.href.indexOf('tel:') === 0;
+    if (isWa || isTel) {
+      // Phones leave the page instantly when opening WhatsApp or the dialer,
+      // which can kill the log request. Log first, then open (max 800 ms wait).
+      e.preventDefault();
+      const target = a.href;
+      let opened = false;
+      const go = function () { if (!opened) { opened = true; window.location.href = target; } };
+      logLeadEvent(isWa ? 'whatsapp_click' : 'call_click').then(go, go);
+      setTimeout(go, 800);
+    } else if (a.classList.contains('work-card')) {
+      logLeadEvent('project_click');
+    }
   });
 }
 
